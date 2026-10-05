@@ -181,3 +181,7 @@ espocrm/
 ## 🚫 6. Blockers
 
 * **None.** All requirements are implemented, PHP syntax checks pass, and all 234 automated unit and API assertions pass cleanly with zero regressions. No commit or push has been performed as requested.
+
+## Git Verification
+
+W6D1 implementation was committed, rebased onto upstream/master, and pushed to the feature branch.
