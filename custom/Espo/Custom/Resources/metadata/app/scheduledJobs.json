@@ -1,0 +1,7 @@
+{
+    "LeadReminderWorkflow": {
+        "jobClassName": "Espo\\Custom\\Jobs\\LeadReminderWorkflow",
+        "scheduling": "0 9 * * *",
+        "isDefault": true
+    }
+}
