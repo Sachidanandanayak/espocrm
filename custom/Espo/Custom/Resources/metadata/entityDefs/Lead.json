@@ -1,0 +1,16 @@
+{
+    "fields": {
+        "remindedAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "aiFollowUpAt": {
+            "type": "datetime",
+            "readOnly": true
+        },
+        "aiFollowUpRationale": {
+            "type": "text",
+            "readOnly": true
+        }
+    }
+}

@@ -1,0 +1,66 @@
+[
+    {
+        "route": "/ActivitySummary",
+        "method": "get",
+        "params": {
+            "controller": "ActivitySummary",
+            "action": "summary"
+        }
+    },
+    {
+        "route": "/ConversationSummarizer/summarize",
+        "method": "post",
+        "params": {
+            "controller": "ConversationSummarizer",
+            "action": "summarize"
+        }
+    },
+    {
+        "route": "/ConversationSummarizer/status",
+        "method": "get",
+        "params": {
+            "controller": "ConversationSummarizer",
+            "action": "status"
+        }
+    },
+    {
+        "route": "/LeadReminderWorkflow/status",
+        "method": "get",
+        "params": {
+            "controller": "LeadReminderWorkflow",
+            "action": "status"
+        }
+    },
+    {
+        "route": "/LeadReminderWorkflow/eligibleLeads",
+        "method": "get",
+        "params": {
+            "controller": "LeadReminderWorkflow",
+            "action": "eligibleLeads"
+        }
+    },
+    {
+        "route": "/LeadReminderWorkflow/suggestTiming",
+        "method": "post",
+        "params": {
+            "controller": "LeadReminderWorkflow",
+            "action": "suggestTiming"
+        }
+    },
+    {
+        "route": "/LeadReminderWorkflow/execute",
+        "method": "post",
+        "params": {
+            "controller": "LeadReminderWorkflow",
+            "action": "execute"
+        }
+    },
+    {
+        "route": "/LeadReminderWorkflow/runBatch",
+        "method": "post",
+        "params": {
+            "controller": "LeadReminderWorkflow",
+            "action": "runBatch"
+        }
+    }
+]
