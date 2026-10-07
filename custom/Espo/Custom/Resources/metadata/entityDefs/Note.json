@@ -1,0 +1,12 @@
+{
+    "indexes": {
+        "parentDeletedNumber": {
+            "columns": [
+                "parentId",
+                "parentType",
+                "deleted",
+                "number"
+            ]
+        }
+    }
+}

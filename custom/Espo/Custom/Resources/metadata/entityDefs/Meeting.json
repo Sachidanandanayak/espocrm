@@ -1,0 +1,12 @@
+{
+    "indexes": {
+        "activitySummary": {
+            "columns": [
+                "parentType",
+                "deleted",
+                "parentId",
+                "dateStart"
+            ]
+        }
+    }
+}
