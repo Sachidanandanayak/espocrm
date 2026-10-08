@@ -1,0 +1,149 @@
+# ==============================================================================
+# Production Docker Compose Configuration for EspoCRM Fork
+# Program: Cynaris Software Engineering Internship - Week 6 Day 4
+# Scope: Production-Grade Multi-Service Stack (App, MariaDB, Daemon, WebSocket)
+# ==============================================================================
+
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. MariaDB Relational Database
+  # ----------------------------------------------------------------------------
+  espocrm-db:
+    image: mariadb:11.4
+    container_name: espocrm-prod-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-espocrm_root_pass_prod}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-espocrm}
+      MARIADB_USER: ${MARIADB_USER:-espocrm}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-espocrm_db_pass_prod}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max_allowed_packet=64M
+      - --innodb_buffer_pool_size=512M
+      - --innodb_log_file_size=128M
+    volumes:
+      - espocrm_db_data:/var/lib/mysql
+    networks:
+      - espocrm-network
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-p${MARIADB_ROOT_PASSWORD:-espocrm_root_pass_prod}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ----------------------------------------------------------------------------
+  # 2. EspoCRM Core Application Server (Apache + PHP 8.3+)
+  # ----------------------------------------------------------------------------
+  espocrm:
+    image: espocrm/espocrm:latest
+    container_name: espocrm-prod-app
+    restart: unless-stopped
+    depends_on:
+      espocrm-db:
+        condition: service_healthy
+    ports:
+      - "${ESPOCRM_PORT:-8080}:80"
+    environment:
+      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_HOST: espocrm-db
+      ESPOCRM_DATABASE_PORT: 3306
+      ESPOCRM_DATABASE_NAME: ${MARIADB_DATABASE:-espocrm}
+      ESPOCRM_DATABASE_USER: ${MARIADB_USER:-espocrm}
+      ESPOCRM_DATABASE_PASSWORD: ${MARIADB_PASSWORD:-espocrm_db_pass_prod}
+      ESPOCRM_ADMIN_USERNAME: ${ESPOCRM_ADMIN_USERNAME:-admin}
+      ESPOCRM_ADMIN_PASSWORD: ${ESPOCRM_ADMIN_PASSWORD:-EspoCRM_Admin_2026!}
+      ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL:-http://localhost:8080}
+    volumes:
+      - espocrm_data:/var/www/html/data
+      - espocrm_custom:/var/www/html/custom
+      - espocrm_client_custom:/var/www/html/client/custom
+    networks:
+      - espocrm-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/api/v1/App/user || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ----------------------------------------------------------------------------
+  # 3. EspoCRM Background Task Daemon (Automated Workflows & Schedulers)
+  # ----------------------------------------------------------------------------
+  espocrm-daemon:
+    image: espocrm/espocrm:latest
+    container_name: espocrm-prod-daemon
+    restart: unless-stopped
+    command: docker-daemon.sh
+    depends_on:
+      espocrm-db:
+        condition: service_healthy
+      espocrm:
+        condition: service_started
+    environment:
+      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_HOST: espocrm-db
+      ESPOCRM_DATABASE_NAME: ${MARIADB_DATABASE:-espocrm}
+      ESPOCRM_DATABASE_USER: ${MARIADB_USER:-espocrm}
+      ESPOCRM_DATABASE_PASSWORD: ${MARIADB_PASSWORD:-espocrm_db_pass_prod}
+      ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL:-http://localhost:8080}
+    volumes:
+      - espocrm_data:/var/www/html/data
+      - espocrm_custom:/var/www/html/custom
+      - espocrm_client_custom:/var/www/html/client/custom
+    networks:
+      - espocrm-network
+
+  # ----------------------------------------------------------------------------
+  # 4. EspoCRM WebSocket Server (Real-Time Stream & Notifications)
+  # ----------------------------------------------------------------------------
+  espocrm-websocket:
+    image: espocrm/espocrm:latest
+    container_name: espocrm-prod-websocket
+    restart: unless-stopped
+    command: docker-websocket.sh
+    depends_on:
+      espocrm-db:
+        condition: service_healthy
+      espocrm:
+        condition: service_started
+    ports:
+      - "${ESPOCRM_WS_PORT:-8081}:8080"
+    environment:
+      ESPOCRM_DATABASE_PLATFORM: Mysql
+      ESPOCRM_DATABASE_HOST: espocrm-db
+      ESPOCRM_DATABASE_NAME: ${MARIADB_DATABASE:-espocrm}
+      ESPOCRM_DATABASE_USER: ${MARIADB_USER:-espocrm}
+      ESPOCRM_DATABASE_PASSWORD: ${MARIADB_PASSWORD:-espocrm_db_pass_prod}
+      ESPOCRM_SITE_URL: ${ESPOCRM_SITE_URL:-http://localhost:8080}
+    volumes:
+      - espocrm_data:/var/www/html/data
+      - espocrm_custom:/var/www/html/custom
+      - espocrm_client_custom:/var/www/html/client/custom
+    networks:
+      - espocrm-network
+
+# ------------------------------------------------------------------------------
+# Persistent Volume Declarations
+# ------------------------------------------------------------------------------
+volumes:
+  espocrm_db_data:
+    name: espocrm_prod_db_data
+  espocrm_data:
+    name: espocrm_prod_data
+  espocrm_custom:
+    name: espocrm_prod_custom
+  espocrm_client_custom:
+    name: espocrm_prod_client_custom
+
+# ------------------------------------------------------------------------------
+# Isolated Production Bridge Network
+# ------------------------------------------------------------------------------
+networks:
+  espocrm-network:
+    name: espocrm-prod-network
+    driver: bridge
