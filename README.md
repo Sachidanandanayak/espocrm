@@ -1,99 +1,163 @@
-## EspoCRM
+# EspoCRM — Enterprise CRM Platform & Custom Extensions
 
 [![PHPStan level 8](https://img.shields.io/badge/PHPStan-level%208-brightgreen)](#espocrm)
+[![PHP](https://img.shields.io/badge/PHP-8.3%20%7C%208.4%20%7C%208.5-blue.svg)](https://www.php.net/)
+[![Database](https://img.shields.io/badge/Database-MariaDB%2011.4%20%7C%20MySQL%208.0-orange.svg)](https://mariadb.org/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://raw.githubusercontent.com/espocrm/espocrm/master/LICENSE.txt)
 
-[EspoCRM](https://www.espocrm.com) is a free, open-source CRM platform designed to help organizations build and maintain strong customer relationships.
-It provides a wide range of tools to store, organize, and manage leads, contacts, sales opportunities, marketing campaigns,
-support cases, and more – all business information in a simple and intuitive interface.
+> **Cynaris Solutions Full Stack Development Internship**  
+> **Author:** Sachidananda Nayak  
+> **Repository:** [https://github.com/Sachidanandanayak/espocrm](https://github.com/Sachidanandanayak/espocrm)  
+> **Upstream:** [https://github.com/espocrm/espocrm](https://github.com/espocrm/espocrm) (`master`)  
+> **Feature Branch:** `feat/w6d5-3m-sachidananda`
 
-![Screenshot](https://github.com/user-attachments/assets/d0806394-3691-43a1-83a5-16ad2e7314e2)
+---
 
+## 📌 Project Overview
 
-### Architecture
+[EspoCRM](https://www.espocrm.com) is an open-source Customer Relationship Management (CRM) platform designed to manage leads, contacts, business accounts, opportunities, activities, and customer communication via an intuitive single-page application (SPA) and extensible REST API backend.
 
-EspoCRM is a web application with a frontend designed as a single-page application and a REST API
-backend written in PHP.
+This repository represents the extended fork developed during the **Cynaris Solutions Software Engineering Internship**, featuring:
+* A containerized multi-service production architecture (`docker-compose.production.yml`).
+* A zero-cost public HTTPS gateway integration (`loca.lt`).
+* End-to-end sales funnel automation (`Lead` → `Account` → `Opportunity` → `Activity`).
+* Authenticated REST API v1 endpoints and telemetry.
+* AI-driven conversation summarization (Groq Llama 3.3 70B integration) and smart reminder workflows.
+* Automated deployment verification test suites with zero regressions.
 
-### Demo
+---
 
-You can try the CRM on an online [demo](https://www.espocrm.com/demo/).
+## 🚀 Quickstart & Project Setup
 
-### Requirements
+### 1. Prerequisites
+* **Docker Engine** (v24.0+) & **Docker Compose** (v2.20+)
+* **PHP** (v8.3 to v8.5 with `curl`, `json`, `mbstring`, `pdo_mysql` extensions)
+* **Git** (v2.40+)
 
-* PHP 8.3 - 8.5;
-* MySQL 8.0 (and later), or MariaDB 10.6 (and later);
-* PostgreSQL 15 (and later).
+### 2. Clone the Fork
+```bash
+git clone https://github.com/Sachidanandanayak/espocrm.git
+cd espocrm
+git checkout feat/w6d5-3m-sachidananda
+```
 
-For more information about server configuration, see [this article](https://docs.espocrm.com/administration/server-configuration/).
+### 3. Launch Production Container Stack
+The self-contained production environment orchestrates all required microservices without touching local development artifacts:
 
-### Download
+```bash
+# Start all production services in the background
+docker compose -f docker-compose.production.yml up -d
 
-[Download](https://www.espocrm.com/download/) the latest release from our website or from GitHub [releases](https://github.com/espocrm/espocrm/releases).
+# Verify container health status
+docker compose -f docker-compose.production.yml ps
+```
 
-### Release notes
+### 4. Service Access & Default Credentials
+Once running, the services are accessible at:
+* **Web Application & REST API:** [http://localhost:8080](http://localhost:8080)
+* **Real-Time WebSocket Server:** `ws://localhost:8081`
+* **Default Admin Username:** `admin`
+* **Default Admin Password:** `EspoCRM_Admin_2026!`
 
-Release notes are available at GitHub [releases](https://github.com/espocrm/espocrm/releases).
+### 5. Start Zero-Cost Public HTTPS Gateway (Optional)
+To expose the local production stack to the internet without credit card registration or paid hosting:
+```bash
+# Launch public reverse proxy gateway
+npx -y localtunnel --port 8080 --subdomain bright-nails-carry
+```
+The public URL will be accessible at: `https://bright-nails-carry.loca.lt` (Bypass header: `Bypass-Tunnel-Reminder: true`).
 
-### Documentation
+---
 
-See the [documentation](https://docs.espocrm.com) for administrators, users and developers.
+## 💻 Technology Stack
 
-### Why EspoCRM?
+| Layer | Technology | Version / Specification | Role |
+| :--- | :--- | :--- | :--- |
+| **Backend Core** | PHP | 8.3 / 8.5 (CLI & Apache) | Business logic, ORM, REST API controllers, DI |
+| **Web Server** | Apache HTTP Server | 2.4 (pre-configured in base) | HTTP server, URL rewriting, headers |
+| **Database** | MariaDB | 11.4 LTS | Relational storage, UTF-8 (`utf8mb4_unicode_ci`) |
+| **Real-Time Engine** | EspoCRM WebSocket Daemon | ZeroMQ / Ratchet | Instant push notifications, entity stream updates |
+| **Task Daemon** | EspoCRM Scheduled Jobs | PHP CLI daemon | Asynchronous queues, cron automation |
+| **Frontend SPA** | JavaScript (ES6+) / Backbone | Custom Espo SPA framework | Single-page application, metadata views |
+| **Data Visualization**| Flotr2 | Native EspoCRM bundle | Activity summary charts and dashlets |
+| **AI Engine** | Groq API | Llama 3.3 70B Versatile | Conversation summarization & optimal follow-up timing |
+| **Orchestration** | Docker & Docker Compose | Compose Specification v3.8 | Multi-service lifecycle, healthchecks, volumes |
+| **Public Gateway** | Localtunnel Reverse Proxy | Edge TLS termination | Zero-cost public HTTPS access |
 
-* Open-source transparency. EspoCRM's source code is open and accessible, so anyone can inspect it and see how data is being managed within the CRM.
-* Customization freedom. You can develop features, create custom entities, fields, relationships, buttons to make the system fit your specific needs. EspoCRM is more than a CRM – it's a platform for building custom business applications.
-* Clean user interface. EspoCRM offers an uncluttered, minimalist, and fast user interface, which is easy to navigate and has a short learning curve.
-* Straightforward REST API. It can be easily integrated with other applications using a REST API.
+---
 
-### Who is EspoCRM for?
+## ✨ Implemented Features
 
-* From startups, small & medium-sized businesses to larger organizations. A flexible, fully customizable solution that scales with your needs.
-* Developers & tech enthusiasts. You can extend functionalities, build extensions, and create custom integrations.
-* Anyone seeking a free or on-premise CRM.
+### 1. Production Container Architecture (`docker-compose.production.yml`)
+* **Multi-Service Topology:** Decoupled into `espocrm-prod-app`, `espocrm-prod-db`, `espocrm-prod-daemon`, and `espocrm-websocket`.
+* **Database Tuning:** MariaDB tuned with `innodb_buffer_pool_size=512M` and `max_allowed_packet=64M`.
+* **Orchestration Reliability:** Automated MariaDB healthcheck (`mariadb-admin ping`) with `condition: service_healthy` on dependent services.
+* **Persistent Volumes:** Isolated named volumes for database records (`espocrm_prod_db_data`), uploads (`espocrm_prod_data`), and extensions (`espocrm_prod_custom`, `espocrm_prod_client_custom`).
+* **High Availability:** `restart: unless-stopped` specified across all services.
 
-### Installing stable version
+### 2. CRM Sales Funnel Lifecycle
+Verified programmatic and UI workflows covering the end-to-end sales cycle:
+$$\text{Lead} \xrightarrow{\quad\text{Conversion}\quad} \text{Account} \xrightarrow{\quad\text{Pipeline}\quad} \text{Opportunity} \xrightarrow{\quad\text{Execution}\quad} \text{Activity (Meeting)}$$
+* **Lead:** Elena Rostova (`6ac7d18d45ce82dbc`) — `$75,000` inquiry.
+* **Account:** Apex Enterprise Global (`6ac7d1927f57f425a`).
+* **Opportunity:** Apex Enterprise Cloud CRM Deployment & Migration (`6ac7d1b3cd00e7fde`, `$75,000`, 50% probability).
+* **Activity:** Meeting — Production Architecture & Security Sign-Off (`6ac7d1bfb6371c942`, Planned).
 
-See installation instructions:
+### 3. REST API v1 Telemetry & Endpoints
+* **Authenticated Telemetry:** `GET /api/v1/App/user` returning user profile, permissions, and runtime metadata.
+* **Entity Operations:** `POST /api/v1/Lead`, `GET /api/v1/Opportunity`, `GET /api/v1/Account`.
+* **Security:** Support for HTTP Basic Auth and bearer session tokens (`Espo-Authorization`).
 
-* [Manual installation](https://docs.espocrm.com/administration/installation/)
-* [Installation by script](https://docs.espocrm.com/administration/installation-by-script/)
-* [Installation with Docker](https://docs.espocrm.com/administration/docker/installation/)
-* [Installation with Traefik](https://docs.espocrm.com/administration/docker/traefik/)
+### 4. AI & Workflow Automation
+* **AI Conversation Summarizer:** Summarizes meetings, call notes, and deal discussions into executive points, sentiment, and temperature via Groq Llama 3.3 70B.
+* **Smart Reminders:** Automatically identifies uncontacted leads (3+ days) and schedules optimal follow-ups with anti-spam rate limiting.
+* **Activity Summary Dashboard:** Visualizes past 30 days of activities grouped by Account on the home dashboard.
 
-### Bug reporting
+---
 
-Create a [GitHub issue](https://github.com/espocrm/espocrm/issues/new/choose) or post on our [forum](https://forum.espocrm.com/forum/bug-reports).
+## 🌐 Actual Deployment Status & URLs
 
-### Development
+| Environment | Access URL | Protocol / Port | Verification Status |
+| :--- | :--- | :--- | :--- |
+| **Local Production Stack** | [http://localhost:8080](http://localhost:8080) | HTTP / Port 8080 | Verified & Functional via `docker-compose.production.yml` |
+| **Local WebSocket Server** | `ws://localhost:8081` | WS / Port 8081 | Real-time stream updates enabled |
+| **Public Production Gateway** | [https://bright-nails-carry.loca.lt](https://bright-nails-carry.loca.lt) | HTTPS / Port 443 (Edge TLS) | Reverse proxy endpoint established |
 
-See the [developer documentation](https://docs.espocrm.com/development/).
+> **Deployment Note:** The public gateway requires the local development host and tunnel process to be running. If the local host is stopped, the gateway serves a standard 503 gateway standby page until restarted.
 
-We highly recommend using an IDE for development. The backend codebase adheres to SOLID principles, utilizes interfaces, static typing and generics. We recommend to start learning EspoCRM from the Dependency Injection article in the documentation.
+---
 
-Metadata plays an integral role in the EspoCRM application. All possible parameters are described with a JSON Schema, meaning you will have autocompletion in the IDE. You can also find the full metadata reference in the documentation.
+## ⚠️ Known Limitations
 
-The frontend is an SPA built on a custom framework. It utilizes nested views and service DI, with the core partially written in TypeScript. Developers primarily work with existing form and field view implementations.
+1. **Localtunnel Gateway Session Expiry:** Localtunnel public subdomains are ephemeral if the localtunnel process restarts without the reserved subdomain flag.
+2. **Groq API Key Requirement:** Groq AI summarization requires an active `GROQ_API_KEY` environment variable. When absent, the system falls back to a deterministic rule-based simulation.
+3. **Non-Standard WebSocket Port (8081):** WebSocket communication requires client networks to allow outbound traffic on port 8081. Environments with restrictive corporate firewalls may require reverse proxying WebSocket traffic through port 80/443.
+4. **Volume Mount Persistence:** Custom code changes must be placed in the designated volume mounts (`espocrm_prod_custom` or `./custom/`) to survive container redeployment.
 
-### Community & Support
+---
 
-If you have a question regarding some features, need help or customizations, want to get in touch with other EspoCRM users, or add a feature request, please use our [community forum](https://forum.espocrm.com/). We believe that using the forum to ask for help and share experience allows everyone in the community to contribute and use this knowledge later.
+## 🧪 Verification & Testing
 
-### License
+Run the automated verification suite to validate container configuration and API functionality:
 
-EspoCRM is an open-source project licensed under [GNU AGPLv3](https://raw.githubusercontent.com/espocrm/espocrm/master/LICENSE.txt).
+```bash
+# Check PHP syntax of verification scripts
+php -l tests/unit/verify_production_deployment.php
 
-### Contributing
+# Execute automated deployment assertions
+php tests/unit/verify_production_deployment.php
+```
 
-Before we can merge your pull request, you need to accept our CLA [here](https://github.com/espocrm/cla). See the [contributing guidelines](https://github.com/espocrm/espocrm/blob/master/.github/CONTRIBUTING.md).
+---
 
-Branches:
+## 📂 Repository Branching Structure
 
-* *fix* – upcoming maintenance release; minor fixes should be pushed to this branch;
-* *master* – develop branch; new features should be pushed to this branch;
-* *stable* – last stable release.
+* `upstream/master` — Official EspoCRM repository develop branch.
+* `origin/feat/w6d4-3m-sachidananda` — W6D4 Production deployment configuration & test suite.
+* `origin/feat/w6d5-3m-sachidananda` — Current branch: Technical documentation, demo script, and final PR submission.
 
-### Language
+---
 
-If you want to improve existing translation or add a language that is not available yet, you can contribute on our [POEditor](https://poeditor.com/join/project/gLDKZtUF4i) project. See instructions [here](https://www.espocrm.com/blog/how-to-use-poeditor-to-translate-espocrm/). It may be reasonable to let us know about your intention to join the POEditor project by posting on our forum or via the contact form on our website.
+## 📄 License & Contributing
 
-Changes on POEditor are usually merged to the GitHub repository before minor releases.
+EspoCRM is open-source software licensed under the [GNU AGPLv3](https://raw.githubusercontent.com/espocrm/espocrm/master/LICENSE.txt). Contributions adhere to the upstream [EspoCRM Contributing Guidelines](https://github.com/espocrm/espocrm/blob/master/.github/CONTRIBUTING.md).
